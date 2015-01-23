@@ -127,7 +127,7 @@ public class CSVTools extends ArrayList<ArrayList<String>>{
 					header = line;
 					firstLine=false;
 				} else {
-					this.add(line);
+					super.add(line);
 				}
 				
 				dataComments.add(comment);

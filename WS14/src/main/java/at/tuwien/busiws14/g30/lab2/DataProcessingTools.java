@@ -1,6 +1,7 @@
 package at.tuwien.busiws14.g30.lab2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
@@ -122,7 +123,7 @@ public class DataProcessingTools {
 	public static ArrayList<String> sort(ArrayList<String> data) {
 		if (data == null) throw new NullPointerException("Input data is null");
 		if (data.size() < 1) throw new DataException("Input data must have at least one entry");
-		data.sort(new Comparator<String>() {
+		Collections.sort(data, new Comparator<String>() {
 
 			@Override
 			public int compare(String arg0, String arg1) {
