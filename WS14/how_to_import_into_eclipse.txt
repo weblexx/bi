@@ -1,0 +1,10 @@
+open eclipse
+go File->Import
+
+Maven->Existing Maven Projects
+
+select the folder of the project
+
+confirm
+
+eclipse will generate the necessary files in the project folder and from now on it is also an eclipse project

@@ -1,0 +1,13 @@
+jdk should be installed
+apache maven should be installed
+
+open a cmd in the folder of the pom.xml and type:
+
+mvn clean install
+
+this will execute the following build phases:
+clean - cleanup
+compile - compile java files
+test - run tests (if any)
+package - generate .jar files
+install - register jar file with maven (in case we use it in other projects)
