@@ -43,8 +43,8 @@ public class CSVProcessor {
 		options.addOption("o", "output", true, "the output CSV file");
 		options.addOption("c", "command", true, "The command to execute. Can be: sparsifyByColumn, sparsify, sparsifyByColumnMedian, sparsifyByColumnMean, replaceEmptyWith, sparsifyByColumnMedianClass, sparsifyByColumnMeanClass");
 		options.addOption("s", "seed", true, "(optional) The seed for the random number generator. 123L by default");
-		options.addOption("pbc", "percentageByColumn", true, "assign float values to each columns between 0 and 1 seperated by \";\". Example: 0;0.22;0.33. Must have as many entries as there are columns in the input csv.");
-		options.addOption("p", "percentage", true, "a float percentage between 0 and 1");
+		options.addOption("pbc", "percentageByColumn", true, "assign float values to each columns between 0 and 1 seperated by \";\". Example: 0;0.22;0.33. Must have as many entries as there are columns in the input csv. Also percentages that are 0 can be used to select columns to process as those will not be attempted.");
+		options.addOption("p", "percentage", true, "a float percentage between 0 and 1. Nothing happens when it's 0");
 		options.addOption("r", "replacement", true, "a string replacement (for replaceEmptyWith)");
 		options.addOption("cl", "classColumn", true, "The column with the classes (index starts with 0) (for all class-related commands)");
 		
