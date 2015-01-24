@@ -62,6 +62,24 @@ public class CSVTools extends ArrayList<ArrayList<String>>{
 		this.hasHeader = hasHeader;
 		this.lineCommentSymbol = lineCommentSymbol;
 	}
+	/**
+	 * Creates new CSV from header
+	 * @param delimiter
+	 * @param headers
+	 */
+	public CSVTools(String delimiter, ArrayList<String> headers) {
+		if (headers == null) throw new CSVException("Input headers is null");
+		if (headers.isEmpty()) throw new CSVException("Input headers is empty");
+		if (headers.contains(null)) throw new CSVException("Input headers contain null value");
+		if (delimiter == null) throw new CSVException("Input delimiter is null");
+		if (delimiter.equals("")) throw new CSVException("Input delimiter is empty");
+		this.delimiter = delimiter;
+		this.hasHeader = true;
+		this.lineCommentSymbol = DEFAULT_LINECOMMENTSYMBOL;
+		this.header = headers;
+		this.numColumns = headers.size();
+		
+	}
 	public CSVTools(File inputFile, boolean hasHeader) {
 		this(inputFile, DEFAULT_DELIMITER, hasHeader, DEFAULT_LINECOMMENTSYMBOL);
 	}
@@ -195,15 +213,21 @@ public class CSVTools extends ArrayList<ArrayList<String>>{
 		return this.numColumns;
 	}
 	public int getNumberOfRows() {
-		return this.numColumns;
+		return this.size();
 	}
 	@Override
 	public void add(int index, ArrayList<String> element) {
-		throw new UnsupportedOperationException();
+		if (element.size() != this.numColumns) {
+			throw new CSVException("Number of columns does not match");
+		}
+		super.add(index, element);
 	}
 	@Override
 	public boolean add(ArrayList<String> element) {
-		throw new UnsupportedOperationException();
+		if (element.size() != this.numColumns) {
+			throw new CSVException("Number of columns does not match");
+		}
+		return super.add(element);
 	}
 	@Override
 	public boolean addAll(Collection<? extends ArrayList<String>> element) {
