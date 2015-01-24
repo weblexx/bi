@@ -41,12 +41,18 @@ public class CSVProcessor {
 		options.addOption("h", "help", false, "Show help.");
 		options.addOption("i", "input", true, "the input CSV file");
 		options.addOption("o", "output", true, "the output CSV file");
-		options.addOption("c", "command", true, "The command to execute. Can be: sparsifyByColumn, sparsify, sparsifyByColumnMedian, sparsifyByColumnMean, replaceEmptyWith, sparsifyByColumnMedianClass, sparsifyByColumnMeanClass");
+		options.addOption("c", "command", true, "The command to execute. Can be: "
+				+ "sparsifyByColumn, sparsify, sparsifyByColumnMedian, sparsifyByColumnMean, "
+				+ "replaceEmptyWith, sparsifyByColumnMedianClass, sparsifyByColumnMeanClass, "
+				+ "removeMissing (removes all rows with missing data),"
+				+ "replaceEmptyMeanByClass, replaceEmptyMedianByClass, "
+				+ "replaceEmptyMean, replaceEmptyMedian");
 		options.addOption("s", "seed", true, "(optional) The seed for the random number generator. 123L by default");
 		options.addOption("pbc", "percentageByColumn", true, "assign float values to each columns between 0 and 1 seperated by \";\". Example: 0;0.22;0.33. Must have as many entries as there are columns in the input csv. Also percentages that are 0 can be used to select columns to process as those will not be attempted.");
 		options.addOption("p", "percentage", true, "a float percentage between 0 and 1. Nothing happens when it's 0");
 		options.addOption("r", "replacement", true, "a string replacement (for replaceEmptyWith)");
 		options.addOption("cl", "classColumn", true, "The column with the classes (index starts with 0) (for all class-related commands)");
+
 		
 		CommandLineParser cp = new BasicParser();
 
@@ -110,7 +116,9 @@ public class CSVProcessor {
 		
 		if (cli.hasOption("command")) {
 			command = cli.getOptionValue("command");
-			if (command.equalsIgnoreCase("sparsify")) {
+			if (command.equalsIgnoreCase("removeMissing")) {
+				removeMissing();
+			} else if (command.equalsIgnoreCase("sparsify")) {
 				if (!cli.hasOption("percentage")) {
 					System.out.println("percentage missing");
 					printUsageAndExit();
@@ -232,6 +240,22 @@ public class CSVProcessor {
 				sparsifyByColumnMeanClass();
 			} else if(command.equalsIgnoreCase("replaceEmptyWith")) {
 				replaceEmptyWith();
+			} else if(command.equalsIgnoreCase("replaceEmptyMeanByClass")) {
+				if (classColumn == null) {
+					System.out.println("classColumn missing");
+					printUsageAndExit();
+				}
+				replaceEmptyMeanByClass();
+			} else if(command.equalsIgnoreCase("replaceEmptyMedianByClass")) {
+				if (classColumn == null) {
+					System.out.println("classColumn missing");
+					printUsageAndExit();
+				}
+				replaceEmptyMedianByClass();
+			} else if(command.equalsIgnoreCase("replaceEmptyMean")) {
+				replaceEmptyMean();
+			} else if(command.equalsIgnoreCase("replaceEmptyMedian")) {
+				replaceEmptyMedian();
 			} else {
 				System.out.println("Invalid command "+command);
 				printUsageAndExit();
@@ -303,6 +327,64 @@ public class CSVProcessor {
 		csv.writeToFile(outputFile);
 	}
 	
+	private static void replaceEmptyMean() {
+		ArrayList<Double> means = DataProcessingTools.calculateAllMeans(csv);
+		for (int i=0; i<csv.getNumberOfRows(); i++) {
+			ArrayList<String> line = csv.get(i);
+			for (int j=0; j<line.size(); j++) {
+				if (line.get(j).equals("?")) {
+					line.set(j, means.get(j).toString());
+				}
+			}
+			csv.set(i, line);
+		}
+		csv.writeToFile(outputFile);
+	}
+	private static void replaceEmptyMedian() {
+		ArrayList<String> medians = DataProcessingTools.calculateAllMedians(csv);
+		for (int i=0; i<csv.getNumberOfRows(); i++) {
+			ArrayList<String> line = csv.get(i);
+			for (int j=0; j<line.size(); j++) {
+				if (line.get(j).equals("?")) {
+					line.set(j, medians.get(j));
+				}
+			}
+			csv.set(i, line);
+		}
+		csv.writeToFile(outputFile);
+	}
+	
+	private static void replaceEmptyMeanByClass() {
+		ArrayList<String> classes = DataProcessingTools.getDistinctData(csv, classColumn);
+		ArrayList<HashMap<String, Double>> meansByClass = DataProcessingTools.calculateAllMeansByClassAndColumn(csv, classes, classColumn);
+		for (int i=0; i<csv.getNumberOfRows(); i++) {
+			ArrayList<String> line = csv.get(i);
+			for (int j=0; j<line.size(); j++) {
+				if (line.get(j).equals("?")) {
+					line.set(j, meansByClass.get(j).get(line.get(classColumn)).toString());
+				}
+			}
+			csv.set(i, line);
+		}
+		csv.writeToFile(outputFile);
+	}
+	
+	private static void replaceEmptyMedianByClass() {
+		ArrayList<String> classes = DataProcessingTools.getDistinctData(csv, classColumn);
+		ArrayList<HashMap<String, String>> mediansByClass = DataProcessingTools.calculateAllMediansByClassAndColumn(csv, classes, classColumn);
+		for (int i=0; i<csv.getNumberOfRows(); i++) {
+			ArrayList<String> line = csv.get(i);
+			for (int j=0; j<line.size(); j++) {
+				if (line.get(j).equals("?")) {
+					line.set(j, mediansByClass.get(j).get(line.get(classColumn)));
+				}
+			}
+			csv.set(i, line);
+		}
+		csv.writeToFile(outputFile);
+	}
+
+	
 	
 	
 	
@@ -350,6 +432,20 @@ public class CSVProcessor {
 		}
 		csv.writeToFile(outputFile);
 		
+	}
+	
+	private static void removeMissing() {
+		for (int i=0; i<csv.getNumberOfRows(); i++) {
+			ArrayList<String> line = csv.get(i);
+			for (String s : line) {
+				if (s.equalsIgnoreCase("") || s.equalsIgnoreCase("?")) {
+					csv.remove(i);
+					i--;
+					break;
+				}
+			}
+		}
+		csv.writeToFile(outputFile);
 	}
 
 }

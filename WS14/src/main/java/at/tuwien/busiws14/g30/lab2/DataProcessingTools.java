@@ -232,7 +232,13 @@ public class DataProcessingTools {
 			if (s.equalsIgnoreCase("?") || s.equalsIgnoreCase("")) {
 				sum+=0;
 			} else {
-				sum+=Double.valueOf(s);
+				double add = 0;
+				try {
+					add = Double.valueOf(s);
+				} catch(NumberFormatException e) {
+					
+				}
+				sum+=add;
 			}
 			
 		}
